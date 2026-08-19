@@ -1,0 +1,235 @@
+<div class="site-wrapper">
+  <!-- MAIN NAVBAR HEADER -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <span class="brand-logo">🐪 Nawi Trends</span>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input type="text" placeholder="Search products, brands...">
+      </div>
+
+      <!-- Nav Action Buttons -->
+      <div class="nav-actions">
+        <button class="icon-btn wishlist-btn-nav" title="Wishlist">♡</button>
+        <button class="icon-btn cart-btn" (click)="toggleCart()" title="Cart">
+          🛒 <span class="badge" *ngIf="cart.length > 0">{{ cart.length }}</span>
+        </button>
+        <button class="btn-register-nav icon-btn" (click)="toggleRegisterModal()" title="Account">👤</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NEW ARRIVALS BANNER  -->
+  <section class="hero-section">
+    <div class="hero-text-background">SHOES</div>
+
+    <div class="hero-content">
+      <span class="hero-tag tag-top">ADJUSTABLE</span>
+
+      <div class="hero-image-wrapper">
+        <img 
+          src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&q=80&w=1000" 
+          alt="Featured Blue Sneaker" 
+          class="hero-shoe" 
+        />
+      </div>
+
+      <span class="hero-tag tag-bottom">SOFT PAD</span>
+    </div>
+
+    <!-- CTA Pill Buttons -->
+    <div class="hero-cta-buttons">
+      <button class="btn-pill btn-dark">NEW ARRIVALS</button>
+      <button class="btn-pill btn-olive">WHAT'S TRENDING</button>
+    </div>
+  </section>
+
+  <!-- Featured Collection-->
+  <section class="section-container">
+    <h2 class="section-title">Featured Collection</h2>
+    <div class="products-grid">
+      @for (product of products; track 'grid-' + product.id) {
+        <div class="product-card">
+          <div class="card-top">
+            @if (product.discountBadge) {
+              <span class="discount-badge">{{ product.discountBadge }}</span>
+            }
+            <button class="wishlist-btn" (click)="toggleWishlist(product)">♡</button>
+            <img [src]="product.imageUrl" [alt]="product.title">
+            <button class="add-to-cart-btn" (click)="addToCart(product)">Add To Cart</button>
+          </div>
+
+          <div class="card-details">
+            <span class="category-tag">{{ product.category }}</span>
+            <div class="item-title">{{ product.title }}</div>
+            <p class="description">{{ product.description }}</p>
+
+            <div class="price-row">
+              <span class="current-price" [class.sale]="product.oldPrice">${{ product.price }}</span>
+              @if (product.oldPrice) {
+                <span class="old-price">${{ product.oldPrice }}</span>
+              }
+            </div>
+
+            <div class="rating-row">
+              {{ product.ratingStars || '★★★★★' }}
+              <span class="rating-count">({{ product.ratingCount || 0 }})</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CATEGORY SECTION -->
+  <section class="section-container categories-section">
+    <div class="category-grid">
+      <div class="category-card" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBdXf2YglN5Ayr4ZqiLZrxZJKcv0Se-LJppior64oGqA&s=10');">
+        <div class="category-overlay">
+          <h3>Newcomer</h3>
+        </div>
+      </div>
+      <div class="category-card" style="background-image: url('https://media.istockphoto.com/id/2183219028/photo/a-stylish-young-man-showcases-autumn-fashion-in-a-modern-studio-setting.webp?a=1&b=1&s=612x612&w=0&k=20&c=I49LCSk2VdwEP3HChbENfOoOoubwx2_XySmorK7nfe0=');">
+        <div class="category-overlay">
+          <h3>Men</h3>
+        </div>
+      </div>
+      <div class="category-card" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQykVKAWAeoJ4ctHadAXCugmuucAxTgGIrD6Gm5bAsTDg&s=10');">
+        <div class="category-overlay">
+          <h3>Women</h3>
+        </div>
+      </div>
+      <div class="category-card" style="background-image: url('https://plus.unsplash.com/premium_photo-1691367782367-2bd37f646abc?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?');">
+        <div class="category-overlay">
+          <h3>Kids</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CART SIDE OVERLAY & DRAWER -->
+  @if (isCartOpen) {
+    <div class="cart-overlay" (click)="toggleCart()"></div>
+  }
+
+  <aside class="cart-drawer" [class.open]="isCartOpen">
+    <div class="cart-header">
+      @if (checkoutStep === 'checkout') {
+        <button class="back-btn" (click)="backToReview()">← Back</button>
+      }
+      <h3>{{ checkoutStep === 'review' ? 'Your Shopping Cart' : 'Order Processing' }}</h3>
+      <button class="close-btn" (click)="toggleCart()">✕</button>
+    </div>
+
+    <div class="cart-body">
+      <!-- STEP 1: ITEM REVIEW -->
+      @if (checkoutStep === 'review') {
+        @if (cart.length === 0) {
+          <div class="empty-cart">
+            <p>Your cart is empty.</p>
+          </div>
+        } @else {
+          @for (item of cart; track item.product.id) {
+            <div class="cart-item">
+              <img [src]="item.product.imageUrl" [alt]="item.product.title" />
+              <div class="item-info">
+                <h4>{{ item.product.title }}</h4>
+                <p>${{ item.product.price }} x {{ item.quantity }}</p>
+              </div>
+              <button class="btn-remove" (click)="removeFromCart(item.product.id)">🗑️</button>
+            </div>
+          }
+        }
+      }
+
+      <!-- STEP 2: ORDER PROCESSING FORM -->
+      @if (checkoutStep === 'checkout') {
+        <form id="orderForm" (ngSubmit)="onProcessOrder()" class="drawer-form">
+          <div class="input-group">
+            <label for="address">Shipping Address</label>
+            <input id="address" type="text" [(ngModel)]="orderData.shippingAddress" name="shippingAddress" placeholder="Street address" required>
+          </div>
+          <div class="input-group">
+            <label for="paymentMethod">Payment Method</label>
+            <select id="paymentMethod" [(ngModel)]="orderData.paymentMethod" name="paymentMethod">
+              <option value="card">Credit / Debit Card</option>
+              <option value="paypal">PayPal</option>
+              <option value="applepay">Apple Pay</option>
+              <option value="mpesa">M-Pesa</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="cardNumber">Card / Account Details</label>
+            <input id="cardNumber" type="text" [(ngModel)]="orderData.cardNumber" name="cardNumber" placeholder="XXXX - XXXX - XXXX - XXXX" required>
+          </div>
+        </form>
+      }
+    </div>
+
+    @if (cart.length > 0) {
+      <div class="cart-footer">
+        <div class="total-row">
+          <span>Total Amount:</span>
+          <span class="total-price">${{ cartTotal.toFixed(2) }}</span>
+        </div>
+
+        @if (checkoutStep === 'review') {
+          <button class="btn-checkout" (click)="proceedToCheckout()">Proceed to Checkout</button>
+        } @else {
+          <button type="submit" form="orderForm" class="btn-checkout btn-green">Complete Order</button>
+        }
+      </div>
+    }
+  </aside>
+
+  <!-- USER REGISTRATION MODAL -->
+  @if (isRegisterOpen) {
+    <div class="modal-overlay" (click)="toggleRegisterModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Create Account</h2>
+          <button class="close-btn" (click)="toggleRegisterModal()">✕</button>
+        </div>
+        <form (ngSubmit)="onRegister()">
+          <div class="input-group">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" type="text" [(ngModel)]="regData.fullName" name="fullName" placeholder="e.g. Jon Ejore" required>
+          </div>
+          <div class="input-group">
+            <label for="email">Email Address</label>
+            <input id="email" type="email" [(ngModel)]="regData.email" name="email" placeholder="ejore@example.com" required>
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" [(ngModel)]="regData.password" name="password" placeholder="••••••••" required>
+          </div>
+          <button type="submit" class="submit-btn btn-orange">Register Now</button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>Nawi Trends</h3>
+        <p>Discover bold clothing and sleek footwear designed to make every step unforgettable.
+        Redefine your look today—where trendsetting style meets effortless quality.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Accepted Payment Methods</h4>
+        <p>💳Mastercard</p>
+        <p>💳 PayPal</p>
+        <p>🍎 Apple Pay</p>
+        <p>📱M-Pesa</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Nawi Trends Inc. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
