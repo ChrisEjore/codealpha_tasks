@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile_user.username }} - Beatz</title>
+    <style>
+        :root {
+          --bg-dark: #0D0E15;
+          --card-bg: #181928;
+          --neon-pink: #FF007F;
+          --electric-lime: #CCFF00;
+          --text-main: #F3F4F8;
+          --text-muted: #A0A5C0;
+        }
+        body {
+          background-color: var(--bg-dark);
+          color: var(--text-main);
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          max-width: 650px;
+          margin: 0 auto;
+          padding: 20px;
+        }
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .brand {
+          color: var(--neon-pink);
+          font-size: 2rem;
+          font-weight: 900;
+          letter-spacing: 2px;
+          text-decoration: none;
+        }
+        .profile-card {
+          background: var(--card-bg);
+          border: 1px solid var(--electric-lime);
+          border-radius: 16px;
+          padding: 24px;
+          margin-bottom: 30px;
+          text-align: center;
+        }
+        .profile-username {
+          color: var(--electric-lime);
+          font-size: 1.8rem;
+          font-weight: bold;
+          margin-bottom: 8px;
+        }
+        .bio { color: var(--text-muted); margin-bottom: 15px; }
+        .stats {
+          display: flex;
+          justify-content: center;
+          gap: 30px;
+          margin-bottom: 20px;
+          font-size: 1.1rem;
+        }
+        .btn-follow {
+          background: var(--neon-pink);
+          color: white;
+          border: none;
+          padding: 8px 24px;
+          border-radius: 20px;
+          font-weight: bold;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .btn-follow.following {
+          background: transparent;
+          border: 1px solid var(--neon-pink);
+          color: var(--neon-pink);
+        }
+        .post-card {
+          background: var(--card-bg);
+          border: 1px solid rgba(204, 255, 0, 0.2);
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <a href="{% url 'index' %}" class="brand">BEATZ</a>
+    <a href="{% url 'index' %}" style="color: var(--electric-lime); text-decoration: none; font-weight: bold;">← Back to Feed</a>
+</div>
+
+<div class="profile-card">
+    <div class="profile-username">@{{ profile_user.username }}</div>
+    <div class="bio">{{ profile_user.bio|default:"No bio provided yet." }}</div>
+
+    <div class="stats">
+        <div><strong>{{ followers_count }}</strong> <span style="color: var(--text-muted);">Followers</span></div>
+        <div><strong>{{ following_count }}</strong> <span style="color: var(--text-muted);">Following</span></div>
+    </div>
+
+    {% if request.user.is_authenticated and request.user != profile_user %}
+    <a href="{% url 'toggle_follow' profile_user.username %}" class="btn-follow {% if is_following %}following{% endif %}">
+        {% if is_following %}Unfollow{% else %}Follow{% endif %}
+    </a>
+    {% endif %}
+</div>
+
+<h3 style="color: var(--electric-lime);">User Posts</h3>
+
+{% for post in posts %}
+<div class="post-card">
+    <div style="margin-bottom: 10px; line-height: 1.5;">{{ post.content }}</div>
+    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+        <span>{{ post.created_at|timesince }} ago</span>
+        <span>♥ {{ post.likes.count }} Likes</span>
+    </div>
+</div>
+{% empty %}
+<p style="color: var(--text-muted);">This user has not posted anything yet.</p>
+{% endfor %}
+
+</body>
+</html>
